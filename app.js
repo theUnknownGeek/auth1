@@ -1,5 +1,6 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
 
 const app = express()
 app.use(express.static("public"))
@@ -34,14 +35,24 @@ app.get("/register", (req,res)=>{
 })
 
 app.post("/register", async (req,res)=>{
-    const newUser = new User({
-        username: req.body.username,
-        password: req.body.password
-    })
+    try{
 
-    await newUser.save();
+        const hashedPass = await bcrypt.hash(req.body.password,10)
 
-    res.render("secrets")
+        const newUser = new User({
+            username: req.body.username,
+            password: hashedPass
+        })
+
+        await newUser.save();
+
+        res.render("secrets")
+    } catch(err){
+        console.log(err)
+
+        res.send("Registration failed")
+    }
+    
 })
 
 app.post("/login", async (req,res)=>{
@@ -53,10 +64,14 @@ app.post("/login", async (req,res)=>{
     })
 
     if(foundUser){
-        if(foundUser.password === passwordLog){
-            res.render("secrets");
+        const match = await bcrypt.compare(
+            req.body.password, foundUser.password
+        )
+
+        if(match){
+            res.render("secrets")
         } else{
-            res.send("Incorrect Password");
+            res.send("Incorrect Password")
         }
     } else{
         res.send("Username not Found");

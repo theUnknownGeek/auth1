@@ -10,9 +10,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "mongoose": "^9.6.2",
+    "mongoose-encryption": "^2.1.2",
     "nodemon": "^3.1.14"
   }
 }
